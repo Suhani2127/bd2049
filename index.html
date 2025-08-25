@@ -1,200 +1,108 @@
-<!--
-Blade Runner 2049 - Single-file demo UI
-Includes: neon/glitch hero, rain canvas, ambient flicker, responsive layout.
-
-How to use:
-1) Save this file as `index.html`.
-2) (Optional) Replace the placeholder background image at --bg-img in the CSS with your own image URL.
-3) Fonts: This file uses Google Fonts (Orbitron, Share Tech Mono). If you want the exact 'Blade Runner' movie font, download it yourself and @font-face it into the CSS.
-4) Preview locally: open index.html in a browser.
-5) Deploy: push to a GitHub repo and enable GitHub Pages (Settings → Pages → branch: main → /root) OR drag-and-drop to Netlify.
-
-Notes on assets and licensing: Do not use copyrighted images or fonts without permission. This demo uses free Google Fonts and CSS-only effects.
--->
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Blade Runner 2049 — UI Demo</title>
-
-  <!-- Google fonts (substitute with your purchased Blade Runner font if you have one) -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --bg-color:#05060a;
-      --accent:#7fffd4; /* teal neon */
-      --accent-2:#ff3bff; /* magenta */
-      --glass: rgba(255,255,255,0.04);
-      --bg-img: url('Screenshot 2025-08-26 001233.png'); /* add background image URL here */
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family: 'Orbitron', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg-color); color:#e6e6e6}
-
-    /* full-screen hero */
-    .hero{
-      position:relative;
-      height:100vh;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:2rem;
-      background: linear-gradient(180deg, rgba(5,6,10,1) 0%, rgba(10,10,12,0.85) 50%, rgba(2,2,6,1) 100%);
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blade Runner 2049</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Orbitron', sans-serif;
+        color: #fff;
+        text-align: center;
     }
 
-    /* subtle background image (optional) */
-    .hero::before{
-      content:'';position:absolute;inset:0;z-index:0;background-image:var(--bg-img);background-size:cover;background-position:center;opacity:0.35;filter:blur(2px) saturate(1.2);
-      mix-blend-mode:screen;
+    /* Background Slideshow */
+    #slideshow {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: -2;
+    }
+    #slideshow img {
+        position: absolute;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+    }
+    #slideshow img.active {
+        opacity: 1;
     }
 
-    /* glass card */
-    .card{position:relative;z-index:3;max-width:1100px;width:100%;padding:3rem;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 40px rgba(0,0,0,0.7);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03)}
+    /* Video Background */
+    
 
-    h1{
-      font-weight:900;letter-spacing:6px;margin:0 0 1rem;font-size:clamp(28px,6vw,72px);line-height:0.9;color:var(--accent);
-      text-transform:uppercase;position:relative;display:inline-block;padding:0 0.25rem;
+    .overlay {
+        position: relative;
+        z-index: 1;
+        padding-top: 20%;
     }
 
-    /* neon glow */
-    h1 span{display:inline-block;position:relative}
-    h1 span::after{content:'';position:absolute;inset:0;filter: blur(12px);opacity:0.7;background:linear-gradient(90deg,var(--accent),var(--accent-2));mix-blend-mode:screen;z-index:-1}
+    a.button {
+        display: inline-block;
+        padding: 15px 25px;
+        background: rgba(255, 0, 102, 0.8);
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 20px;
+        transition: background 0.3s;
+    }
+    a.button:hover {
+        background: rgba(255, 0, 102, 1);
+    }
 
-    /* subtitle */
-    p.lead{font-family:'Share Tech Mono', monospace;margin:0 0 2rem;color:rgba(230,230,230,0.75);font-size:clamp(12px,1.8vw,18px)}
-
-    /* CTA */
-    .buttons{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
-    .btn{padding:0.85rem 1.4rem;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));cursor:pointer;font-weight:700;text-transform:uppercase;letter-spacing:1px}
-    .btn.ghost{background:transparent;border:1px solid rgba(127,255,212,0.18);color:var(--accent)}
-    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#05060a;border:none}
-
-    /* small caption */
-    .meta{margin-top:1.3rem;color:rgba(230,230,230,0.45);font-size:12px}
-
-    /* top-left logo */
-    .logo{position:absolute;left:24px;top:20px;z-index:4;font-family:'Share Tech Mono';font-size:12px;color:rgba(255,255,255,0.65);letter-spacing:2px}
-
-    /* top-right nav */
-    nav{position:absolute;right:24px;top:18px;z-index:4;display:flex;gap:14px;font-family:'Share Tech Mono';font-size:12px}
-    nav a{color:rgba(255,255,255,0.6);text-decoration:none;padding:6px 10px;border-radius:6px}
-    nav a:hover{color:var(--accent)}
-
-    /* small footer strip */
-    .footer-strip{position:absolute;left:0;right:0;bottom:0;height:26px;z-index:4;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono';font-size:11px;color:rgba(255,255,255,0.25)}
-
-    /* glitch effect for decorative text */
-    .glitch{
-      position:relative;display:inline-block}
-    .glitch::before, .glitch::after{
-      content:attr(data-text);position:absolute;left:0;top:0;opacity:0.8}
-    .glitch::before{left:2px;text-shadow:-2px 0 var(--accent);clip-path:polygon(0 0,100% 0,100% 45%,0 45%);animation:glitchTop 2.6s infinite linear}
-    .glitch::after{left:-2px;text-shadow:-2px 0 var(--accent-2);clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);animation:glitchBot 3.1s infinite linear}
-
-    @keyframes glitchTop{0%{transform:translate(0,0)}20%{transform:translate(-4px,-2px)}40%{transform:translate(0,0)}60%{transform:translate(3px,-1px)}100%{transform:translate(0,0)}}
-    @keyframes glitchBot{0%{transform:translate(0,0)}30%{transform:translate(4px,2px)}60%{transform:translate(0,0)}80%{transform:translate(-3px,1px)}100%{transform:translate(0,0)}}
-
-    /* rain canvas fills the hero */
-    canvas.rain{position:absolute;inset:0;z-index:1;pointer-events:none}
-
-    /* ambient horizontal scanline */
-    .scanlines{position:absolute;inset:0;z-index:2;mix-blend-mode:overlay;background-image:linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);background-size:100% 3px;opacity:0.35}
-
-    /* footer credits */
-    .credits{font-family:'Share Tech Mono';font-size:12px;color:rgba(255,255,255,0.4);margin-top:1rem}
-
-    /* responsive tweaks */
-    @media (max-width:700px){.card{padding:2rem}.meta{font-size:11px}}
-
-  </style>
+    /* Spotify Player */
+    .spotify {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+    }
+</style>
 </head>
 <body>
-  <div class="hero">
 
-    <div class="logo">NAVEASE • UI DEMO</div>
-    <nav>
-      <a href="#">Home</a>
-      <a href="#">Gallery</a>
-      <a href="#">About</a>
-    </nav>
 
-    <canvas class="rain" id="rainCanvas"></canvas>
-    <div class="scanlines"></div>
 
-    <div class="card" role="main">
-      <h1><span class="glitch" data-text="BLADE RUNNER">BLADE RUNNER</span> <br><small style="font-size:14px;display:block;margin-top:6px;color:rgba(255,255,255,0.2);letter-spacing:3px">2049</small></h1>
-      <p class="lead">An interactive UI demo inspired by the Blade Runner 2049 site. Neon glows, glitch headers, and ambient rain.
-      </p>
+<!-- Slideshow Images -->
+<div id="slideshow">
+    <img src="Screenshot 2025-08-26 002029.png" class="active">
+    <img src="Screenshot 2025-08-26 001233.png">
+</div>
 
-      <div class="buttons">
-        <button class="btn primary">Experience</button>
-        <button class="btn ghost">View Case</button>
-      </div>
+<!-- Overlay Content -->
+<div class="overlay">
+    <h1>Blade Runner 2049</h1>
+    <p>Experience the dystopian future</p>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdW9QVm1Y8VNN6LrCl4fcRjTN9fs4tqUf9DOt_9Mn1k8-WQ4w/viewform" target="_blank" class="button">Join Now</a>
+</div>
 
-      <div class="meta">Hover the hero or click Experience for more — this is a static demo built for easy deployment.</div>
+<!-- Spotify Playlist -->
+<div class="spotify">
+    <iframe style="border-radius:12px" 
+      src="https://open.spotify.com/embed/playlist/https:/0gCNFjw72jmOgLPyIkrGrm?si=dd24fe9381b04be4?utm_source=generator&theme=0" 
+      width="300" height="80" frameborder="0" 
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+</div>
 
-      <div class="credits">Designed from a Behance showcase. Replace assets to match the original artwork.</div>
-    </div>
+<script>
+    // Slideshow Script
+    let slides = document.querySelectorAll('#slideshow img');
+    let current = 0;
 
-    <div class="footer-strip">© UI Demo • Built with HTML/CSS/JS</div>
-  </div>
-
-  <script>
-    // Rain canvas effect (lightweight, works in a single file)
-    (function(){
-      const canvas = document.getElementById('rainCanvas');
-      const ctx = canvas.getContext('2d');
-      let w = canvas.width = window.innerWidth;
-      let h = canvas.height = window.innerHeight;
-
-      const drops = [];
-      const dropCount = Math.floor((w*h)/20000); // scales with screen
-
-      function random(min,max){return Math.random()*(max-min)+min}
-
-      function createDrops(){
-        for(let i=0;i<dropCount;i++){
-          drops.push({x:Math.random()*w, y:Math.random()*h, l:random(10,30), xs:-4+Math.random()*8, ys:random(4,18), a:random(0.05,0.3)})
-        }
-      }
-      createDrops();
-
-      function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;drops.length=0;createDrops()}
-      window.addEventListener('resize', resize);
-
-      function draw(){
-        ctx.clearRect(0,0,w,h);
-        ctx.globalCompositeOperation = 'lighter';
-        for(let i=0;i<drops.length;i++){
-          const d = drops[i];
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(127,255,212, ${d.a})`;
-          ctx.lineWidth = 1.2;
-          ctx.moveTo(d.x, d.y);
-          ctx.lineTo(d.x + d.xs, d.y + d.ys);
-          ctx.stroke();
-
-          d.x += d.xs; d.y += d.ys;
-          if(d.y>h+20 || d.x<-50 || d.x>w+50){
-            d.x = Math.random()*w; d.y = -20; d.xs = -4+Math.random()*8; d.ys = random(4,18); d.a=random(0.05,0.35);
-          }
-        }
-        requestAnimationFrame(draw);
-      }
-      draw();
-
-      // small ambient flicker on hero title for atmosphere
-      const title = document.querySelector('h1');
-      setInterval(()=>{
-        title.style.opacity = (Math.random()>0.92)? 0.6 : 1;
-      }, 220);
-
-    })();
-  </script>
+    setInterval(() => {
+        slides[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+    }, 5000);
+</script>
 
 </body>
 </html>
+
