@@ -1,17 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk City</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cyberpunk City</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="rain"></div>
-    <h1 class="glow">WELCOME TO NIGHT CITY</h1>
-    <h2>Your neon dream awaits...</h2>
-    <button>Enter</button>
 
-    <script src="script.js"></script>
+  <!-- Rain effect canvas -->
+  <canvas id="rain"></canvas>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <video autoplay loop muted playsinline id="bg-video">
+      <source src="your-cityscape-video.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+    <div class="hero-content">
+      <h1 class="glitch" data-text="BLADE RUNNER 2049">BLADE RUNNER 2049</h1>
+      <p class="tagline">The future is already here. Are you?</p>
+      <a href="https://forms.gle/yourformid" class="neon-btn">Reserve Your Seat</a>
+    </div>
+  </section>
+
+  <!-- Trailer Section -->
+  <section class="trailer-section">
+    <div class="holo-frame">
+      <iframe 
+        src="https://www.youtube.com/embed/yourtrailerid" 
+        allowfullscreen 
+        title="Official Trailer"
+      ></iframe>
+    </div>
+  </section>
+
+  <!-- Event Details -->
+  <section class="info-panels">
+    <div class="neon-panel">Date: <span>Sept 9, 2025</span></div>
+    <div class="neon-panel">Time: <span>7:30 PM</span></div>
+    <div class="neon-panel">Venue: <span>IEEE Hall, Campus X</span></div>
+    <div class="neon-panel">
+      <img src="qr_code.png" alt="RSVP QR Code" />
+    </div>
+    <div class="neon-panel">
+      <img src="minimap.jpg" alt="Map Preview" />
+    </div>
+  </section>
+
+  <!-- Billboard Poster -->
+  <div class="poster-billboard">
+    <img src="your_poster.jpg" alt="Event Poster" />
+  </div>
+
+  <!-- Spotify Playlist -->
+  <div class="playlist-holo-frame">
+    <iframe 
+      src="https://open.spotify.com/embed/playlist/yourplaylistid" 
+      width="330" height="380" frameborder="0" 
+      allowtransparency="true" allow="encrypted-media"
+      title="Cyberpunk Playlist"
+    ></iframe>
+  </div>
+
+  <!-- Team Credits -->
+  <section class="team-cards">
+    <div class="team-card hologram">
+      <h3>Jane Doe</h3>
+      <p>Lead Designer</p>
+      <p>Visuals & Neon FX</p>
+    </div>
+    <div class="team-card hologram">
+      <h3>John Smith</h3>
+      <p>Developer</p>
+      <p>Animations & Interactions</p>
+    </div>
+    <!-- Add more team cards as needed -->
+  </section>
+
+  <!-- Outro -->
+  <div class="glitch outro" data-text="See You in the Future">See You in the Future</div>
+
+  <script src="script.js"></script>
 </body>
 </html>
